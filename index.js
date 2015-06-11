@@ -14,9 +14,9 @@ var nodesArray = []
 for (var i=0; i < N; i++)
   nodesArray.push('#'+i)
 
-function fullyDispersed () {
+function fullyDispersed (v) {
   for (var i=0; i < N; i++) {
-    if (!graph.node('#'+i)['hasDatum'+simnum])
+    if (graph.node('#'+i)['hasDatum'+simnum] !== v)
       return false
   }
   return true
@@ -72,13 +72,13 @@ function randomWeightedByPopularityAndFailures (node) {
   return peer  
 }
 
-function runSimulation (pickPeer) {
+function runSimulation (pickPeer, numGossipings) {
   // give node 0 the datum
-  graph.node('#0')['hasDatum'+simnum] = true
+  graph.node('#0')['hasDatum'+simnum] = numGossipings
 
   // simulate random gossip
   var iterations = 0
-  while (!fullyDispersed()) {
+  while (!fullyDispersed(numGossipings)) {
 
     // run gossip at each node
     for (var i=0; i < N; i++) {
@@ -92,15 +92,20 @@ function runSimulation (pickPeer) {
       // attempting connection...
       if (node.edges[peer]) {
         // connection established! gossip the datum
-        graph.node(peer)['hasDatum'+simnum] = true
+        graph.node(peer)['hasDatum'+simnum] = numGossipings
       }
     }
 
     iterations++
   }
 
-  simnum++
-  return iterations
+  numGossipings--
+  if (numGossipings > 0) {
+    return iterations + runSimulation(pickPeer, numGossipings)
+  } else {
+    simnum++
+    return iterations
+  }
 }
 
 // simulation
@@ -136,7 +141,7 @@ console.log('Graph generated, connectivity from node #0...', str)
 // run simulations
 console.log('\nSIM RESULTS')
 console.log('A datum was gossiped across the network, starting from node #0, using...')
-console.log('Random selection from all nodes:', runSimulation(randomNode), 'rounds')
-console.log('Random selection from nodes\' edges:', runSimulation(randomFromEdges), 'rounds')
-console.log('Random selection from all nodes, weighted by past failures:', runSimulation(randomWeightedByFailures), 'rounds')
-console.log('Random selection from all nodes, weighted by popularity and past failures:', runSimulation(randomWeightedByPopularityAndFailures), 'rounds')
+console.log('Random selection from all nodes:', runSimulation(randomNode, 100), 'rounds')
+console.log('Random selection from nodes\' edges:', runSimulation(randomFromEdges, 100), 'rounds')
+console.log('Random selection from all nodes, weighted by past failures:', runSimulation(randomWeightedByFailures, 100), 'rounds')
+console.log('Random selection from all nodes, weighted by popularity and past failures:', runSimulation(randomWeightedByPopularityAndFailures, 100), 'rounds')
