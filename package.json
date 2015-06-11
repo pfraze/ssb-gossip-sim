@@ -1,0 +1,14 @@
+{
+  "name": "ssb-gossip-sim",
+  "version": "1.0.0",
+  "description": "simulate gossip network algorithms",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Paul Frazee <pfrazee@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "graphmitter": "^1.4.0"
+  }
+}
